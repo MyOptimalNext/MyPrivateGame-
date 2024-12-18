@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Last Chance</title>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: grid;
+            grid-template-areas: 
+                ". up ."
+                "left down right";
+            grid-gap: 10px;
+        }
+        .btn {
+            width: 40px;
+            height: 40px;
+            background-color: #444;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: black;
+        }
+        .btn-up { grid-area: up; }
+        .btn-down { grid-area: down; }
+        .btn-left { grid-area: left; }
+        .btn-right { grid-area: right; }
+    </style>
+</head>
+<body>
+    <canvas id="renderCanvas" touch-action="none"></canvas>
+
+    <!-- الأزرار -->
+    <div class="container">
+        <div class="btn btn-up" onmousedown="startMove('up')" onmouseup="stopMove()" ontouchstart="startMove('up')" ontouchend="stopMove()"></div>
+        <div class="btn btn-left" onmousedown="startMove('left')" onmouseup="stopMove()" ontouchstart="startMove('left')" ontouchend="stopMove()"></div>
+        <div class="btn btn-down" onmousedown="startMove('down')" onmouseup="stopMove()" ontouchstart="startMove('down')" ontouchend="stopMove()"></div>
+        <div class="btn btn-right" onmousedown="startMove('right')" onmouseup="stopMove()" ontouchstart="startMove('right')" ontouchend="stopMove()"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+        let camera;
+        let moveInterval;
+
+        const createScene = () => {
+            const scene = new BABYLON.Scene(engine);
+
+            camera = new BABYLON.FreeCamera("FPSCamera", new BABYLON.Vector3(-15, 1, 20), scene);
+            camera.attachControl(canvas, true);
+
+            new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+
+            const loadCustomObject = (fileName, x, y, z, scaleX, scaleY, scaleZ, rotationX, rotationY, rotationZ) => {
+                BABYLON.SceneLoader.ImportMesh("", "./", fileName, scene, function (meshes) {
+                    const object = meshes[0];
+                    object.position.set(x, y, z);
+                    object.scaling.set(scaleX, scaleY, scaleZ);
+                    object.rotation = new BABYLON.Vector3(
+                        rotationX * Math.PI / 180,
+                        rotationY * Math.PI / 180,
+                        rotationZ * Math.PI / 180
+                    );
+                });
+            };
+
+            loadCustomObject("sky.glb", -10, 0.5, 20, 2, 2, 2, 0, 0, 0);
+            loadCustomObject("sky.glb", -10, 0.5, 20, 2, 2, 2, 90, 0, 0);
+            loadCustomObject("a.glb", -10, 5, 15, 1, 1, 1, 0, 0, 0);
+            loadCustomObject("b.glb", -23, 5.3, 27, 1.3, 1.3, 1.3, 0, 90, 0);
+            loadCustomObject("c.glb", -12, 5, 39, 4, 4, 4, 0, 180, 0);
+            loadCustomObject("d.glb", -19.75, 6, 31, 1, 1, 1, 0, 85, 0);
+            loadCustomObject("e.glb", -22.2, 5.4, 26.31, 3, 3, 3, 0, 0, 0);
+            loadCustomObject("e.glb", -14.2, 5.39, 26.31, 3, 3, 3, 0, 0, 0);
+            loadCustomObject("e.glb", -6.2, 5.38, 26.31, 3, 3, 3, 0, 0, 0);
+            loadCustomObject("e.glb", 2.2, 5.37, 26.31, 3, 3, 3, 0, 0, 0);  
+            loadCustomObject("e.glb", 10.2, 5.36, 26.31, 3, 3, 3, 0, 0, 0);    
+            loadCustomObject("f.glb", 5, 4.7, 26.31, 2, 2, 2, 0, 180, 0);   
+            loadCustomObject("g.glb", 30, 15, 16.31, 0.01, 0.02, 0.01, 0, 0, 0);   
+            loadCustomObject("h.glb", 3, 5.6, 12.31, 1, 1, 1, 0, 0, 0);
+            loadCustomObject("h.glb", 2.6, 5.7, 17.31, 1, 1, 1, 0, 50, 0);
+            loadCustomObject("h.glb", 1, 6, 13.8, 1, 1, 1, 0, 90, 0);
+            loadCustomObject("i.glb", 0, 5.3, 13.8, 0.6, 0.6, 0.6, 0, 90, 0);
+            loadCustomObject("j.glb", -25, 5.3, 22, 4, 4, 4, 0, 0, 0);
+            loadCustomObject("j.glb", -20, 5.3, 22, 4, 4, 4, 0, 0, 0);
+            loadCustomObject("j.glb", -10, 5.3, 22, 4, 4, 4, 0, 0, 0);
+            loadCustomObject("j.glb", -5, 5.3, 22, 4, 4, 4, 0, 0, 0);            
+            loadCustomObject("j.glb", 0, 5.3, 22, 4, 4, 4, 0, 0, 0);
+            loadCustomObject("k.glb", 1.5, 5.1, 20.4, 0.015, 0.015, 0.015, 0, 0, 0);            
+            loadCustomObject("k.glb", -3.5, 5.1, 20.4, 0.015, 0.015, 0.015, 0, 0, 0);            
+            loadCustomObject("k.glb", -8.5, 5.1, 20.4, 0.015, 0.015, 0.015, 0, 0, 0);            
+            loadCustomObject("k.glb", -20.5, 5.1, 20.4, 0.015, 0.015, 0.015, 0, 0, 0);            
+            loadCustomObject("k.glb", -25.5, 5.1, 20.4, 0.015, 0.015, 0.015, 0, 0, 0);            
+            loadCustomObject("l.glb", -21, 5.3, 1, 1.5, 1.5, 1.5, 0, 90, 0);            
+            loadCustomObject("m.glb", -8, 5.3, 0.5, 1.5, 1.5, 1.5, 0, 0, 0);
+            loadCustomObject("k.glb", 1.3, 5.1, 3, 0.015, 0.015, 0.015, 0, 0, 0);   
+            loadCustomObject("n.glb", 0.5, 5.1, 1, 0.5, 0.5, 0.5, 0, 0, 0);   
+
+            return scene;
+        };
+
+        const scene = createScene();
+        engine.runRenderLoop(() => scene.render());
+        window.addEventListener("resize", () => engine.resize());
+
+        function move(direction) {
+            const speed = 0.1;
+            const forward = camera.getDirection(BABYLON.Axis.Z);
+
+            const fixedY = 8.5;
+            camera.position.y = fixedY;
+
+            const cameraPitch = camera.rotation.x;
+
+            switch (direction) {
+                case 'up':
+                    camera.position.addInPlace(forward.scale(speed));
+                    break;
+                case 'down':
+                    camera.position.subtractInPlace(forward.scale(speed));
+                    break;
+                case 'left':
+                    const left = camera.getDirection(BABYLON.Axis.X);
+                    camera.position.subtractInPlace(left.scale(speed));
+                    break;
+                case 'right':
+                    const right = camera.getDirection(BABYLON.Axis.X);
+                    camera.position.addInPlace(right.scale(speed));
+                    break;
+            }
+        }
+
+        function startMove(direction) {
+            moveInterval = setInterval(() => move(direction), 20);
+        }
+
+        function stopMove() {
+            clearInterval(moveInterval);
+        }
+    </script>
+</body>
+</html>
