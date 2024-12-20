@@ -20,10 +20,48 @@
             width: 100%;
             height: 100%;
         }
+        .container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: grid;
+            grid-template-areas: 
+                ". up ."
+                "left down right";
+            grid-gap: 10px;
+        }
+        .btn {
+            width: 40px;
+            height: 40px;
+            background-color: #444;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: black;
+        }
+        .btn-up { grid-area: up; }
+        .btn-down { grid-area: down; }
+        .btn-left { grid-area: left; }
+        .btn-right { grid-area: right; }
     </style>
 </head>
 <body>
     <canvas id="renderCanvas" touch-action="none"></canvas>
+
+    <!-- الأزرار -->
+    <div class="container">
+        <div class="btn btn-up" onmousedown="startMove('up')" onmouseup="stopMove()" ontouchstart="startMove('up')" ontouchend="stopMove()"></div>
+        <div class="btn btn-left" onmousedown="startMove('left')" onmouseup="stopMove()" ontouchstart="startMove('left')" ontouchend="stopMove()"></div>
+        <div class="btn btn-down" onmousedown="startMove('down')" onmouseup="stopMove()" ontouchstart="startMove('down')" ontouchend="stopMove()"></div>
+        <div class="btn btn-right" onmousedown="startMove('right')" onmouseup="stopMove()" ontouchstart="startMove('right')" ontouchend="stopMove()"></div>
+    </div>
 
     <script>
         const canvas = document.getElementById("renderCanvas");
@@ -52,7 +90,6 @@
                 });
             };
 
-            // هنا نقوم بتحميل النماذج المخصصة كما في الكود الأصلي
             loadCustomObject("sky.glb", -10, 0.5, 20, 2, 2, 2, 0, 0, 0);
             loadCustomObject("sky.glb", -10, 0.5, 20, 2, 2, 2, 90, 0, 0);
             loadCustomObject("a.glb", -10, 5, 15, 1, 1, 1, 0, 0, 0);
@@ -84,7 +121,6 @@
             loadCustomObject("m.glb", -8, 5.3, 0.5, 1.5, 1.5, 1.5, 0, 0, 0);
             loadCustomObject("k.glb", 1.3, 5.1, 3, 0.015, 0.015, 0.015, 0, 0, 0);   
             loadCustomObject("n.glb", 0, 5.1, 0.7, 0.5, 0.5, 0.5, 0, 0, 0);   
-            // يمكنك إضافة المزيد من النماذج حسب الحاجة.
 
             return scene;
         };
@@ -93,12 +129,11 @@
         engine.runRenderLoop(() => scene.render());
         window.addEventListener("resize", () => engine.resize());
 
-        // تحريك الكاميرا باستخدام الأسهم أو لوحة المفاتيح
         function move(direction) {
             const speed = 0.1;
             const forward = camera.getDirection(BABYLON.Axis.Z);
 
-            const fixedY = 3;
+            const fixedY = 8.5;
             camera.position.y = fixedY;
 
             const cameraPitch = camera.rotation.x;
@@ -121,26 +156,13 @@
             }
         }
 
-        // التحكم بالكاميرا باستخدام لوحة المفاتيح
-        window.addEventListener("keydown", (e) => {
-            if (e.key === "ArrowUp" || e.key === "w") {
-                move('up');
-            } else if (e.key === "ArrowDown" || e.key === "s") {
-                move('down');
-            } else if (e.key === "ArrowLeft" || e.key === "a") {
-                move('left');
-            } else if (e.key === "ArrowRight" || e.key === "d") {
-                move('right');
-            }
-        });
+        function startMove(direction) {
+            moveInterval = setInterval(() => move(direction), 20);
+        }
 
-        // التحكم بالفأرة لتدوير الكاميرا
-        canvas.addEventListener('pointermove', (e) => {
-            if (e.buttons === 1) { // إذا كان زر الفأرة مضغوطًا
-                camera.rotation.x += e.movementY * 0.01;
-                camera.rotation.y += e.movementX * 0.01;
-            }
-        });
+        function stopMove() {
+            clearInterval(moveInterval);
+        }
     </script>
 </body>
 </html>
